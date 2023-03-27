@@ -49,5 +49,20 @@ public class MainController {
         return u;
     }
 
+    @GetMapping("/users/name/{nameValue}")
+    public List<User> usersBuNameLength(@PathVariable String nameValue) {
+//        List<User> usersByNameLength = userDAO.getUsersByNameLength(nameValue);
+//        return usersByNameLength;
+
+        return userDAO.findByName(nameValue);
+
+
+    }
+
+    @DeleteMapping("/users/all/{id}")
+    public void deleteAllByName(@PathVariable int id) {
+        userDAO.deleteById(id);
+    }
+
 
 }
