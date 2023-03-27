@@ -1,57 +1,53 @@
 package ua.com.owu.sep2022springboot.controllers;
 
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ua.com.owu.sep2022springboot.dao.UserDAO;
 import ua.com.owu.sep2022springboot.models.User;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
+@AllArgsConstructor
 public class MainController {
-    private List<User> users = new ArrayList<>();
 
-    public MainController() {
-        users.add(new User(2, "kokos"));
-        users.add(new User(1, "ananas"));
-        users.add(new User(3, "banan"));
-        users.add(new User(5, "tomat"));
-        users.add(new User(4, "potatos"));
-        users.add(new User(6, "mango"));
-    }
+    private UserDAO userDAO;
 
-    @GetMapping("/")
-    public String homePage() {
-        return "hello guys from okten";
+
+    @PostMapping("/users")
+    public void save(@RequestBody User user) {
+
+        userDAO.save(user);
+        return;
     }
 
     @GetMapping("/users")
     public List<User> getUsers() {
-
-        return users;
+        List<User> all = userDAO.findAll();
+        return all;
     }
 
 
-    // /user/2
     @GetMapping("/users/{id}")
-    public User getUser(@PathVariable("id") int id) {
-        List<User> collect = users
-                .stream()
-                .filter(user -> user.getId() == id)
-                .collect(Collectors.toList());
-        return collect.get(0);
+    public User getUsers(@PathVariable int id) {
+        User user = userDAO.findById(id).get();
+        return user;
+    }
+
+    @DeleteMapping("/users/{id}")
+    public List<User> deleteUser(@PathVariable int id) {
+        userDAO.deleteById(id);
+        return userDAO.findAll();
     }
 
 
-    @PostMapping("/users")
-    public List<User> saveUser(@RequestBody User user) {
-        System.out.println("work");
-        System.out.println(user);
-        users.add(user);
-        return users;
+    @PatchMapping("/users/{id}")
+    public User updateUser(@PathVariable int id, @RequestBody User user) {
+        User u = userDAO.findById(id).get();
+        u.setName(user.getName());
+        userDAO.save(u);
+        return u;
     }
-    // put
-    //patch
-    //delete
+
 
 }
