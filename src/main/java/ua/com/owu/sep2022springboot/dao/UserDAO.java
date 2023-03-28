@@ -1,5 +1,6 @@
 package ua.com.owu.sep2022springboot.dao;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,6 +9,7 @@ import ua.com.owu.sep2022springboot.models.User;
 
 import java.util.List;
 
+@Transactional
 public interface UserDAO extends JpaRepository<User, Integer> {
 
     @Query("select u from User u where u.name =:name ")
