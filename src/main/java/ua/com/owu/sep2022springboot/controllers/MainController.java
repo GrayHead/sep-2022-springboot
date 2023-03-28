@@ -1,70 +1,53 @@
 package ua.com.owu.sep2022springboot.controllers;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-import ua.com.owu.sep2022springboot.dao.UserDAO;
-import ua.com.owu.sep2022springboot.models.User;
+import ua.com.owu.sep2022springboot.dao.CarDAO;
+import ua.com.owu.sep2022springboot.models.Car;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-//@CrossOrigin(origins = "http://localhost:3000")
-
+@RequestMapping(value = "/cars")
 public class MainController {
 
-    private UserDAO userDAO;
+    private CarDAO carDAO;
 
-
-    @PostMapping("/users")
-    public void save(@RequestBody User user) {
-
-        userDAO.save(user);
-        return;
+    @GetMapping("")
+    public List<Car> getCars() {
+        Sort by = Sort.by(Sort.Order.desc("id"));
+        return carDAO.findAll(by);
     }
 
-    @GetMapping("/users")
-    public List<User> getUsers() {
-        List<User> all = userDAO.findAll();
-        return all;
+    @GetMapping("/{id}")
+    public Car getCar(@PathVariable int id) {
+        return carDAO.findById(id).get();
     }
 
-
-    @GetMapping("/users/{id}")
-    public User getUsers(@PathVariable int id) {
-        User user = userDAO.findById(id).get();
-        return user;
+    @PostMapping("")
+    public void saveCar(@RequestBody Car car) {
+        carDAO.save(car);
     }
 
-    @DeleteMapping("/users/{id}")
-    public List<User> deleteUser(@PathVariable int id) {
-        userDAO.deleteById(id);
-        return userDAO.findAll();
+    @DeleteMapping("/{id}")
+    public void deleteCar(@PathVariable int id) {
+        carDAO.deleteById(id);
     }
 
+//    get cars/power/{value} (знайти всі по потужності)
 
-    @PatchMapping("/users/{id}")
-    public User updateUser(@PathVariable int id, @RequestBody User user) {
-        User u = userDAO.findById(id).get();
-        u.setName(user.getName());
-        userDAO.save(u);
-        return u;
+    @GetMapping("/power/{value}")
+    public List<Car> getCarsByPower(@PathVariable int value) {
+//        return carDAO.findAllByPower(value);
+        return carDAO.customQueryByPower(value);
     }
 
-    @GetMapping("/users/name/{nameValue}")
-    public List<User> usersBuNameLength(@PathVariable String nameValue) {
-//        List<User> usersByNameLength = userDAO.getUsersByNameLength(nameValue);
-//        return usersByNameLength;
-
-        return userDAO.findByName(nameValue);
-
-
+    //    get cars/producer/{value} (знайти всі по виробнику)
+    @GetMapping("/producer/{value}")
+    public List<Car> getCarsByProducer(@PathVariable String value) {
+        return carDAO.findAllByProducer(value);
     }
-
-    @DeleteMapping("/users/all/{name}")
-    public void deleteAllByName(@PathVariable String name) {
-        userDAO.deleteAllByName(name);
-    }
-
 
 }
