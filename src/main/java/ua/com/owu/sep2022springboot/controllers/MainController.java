@@ -61,9 +61,9 @@ public class MainController {
 
     }
 
-    @DeleteMapping("/users/all/{id}")
-    public void deleteAllByName(@PathVariable int id) {
-        userDAO.deleteById(id);
+    @DeleteMapping("/users/all/{name}")
+    public void deleteAllByName(@PathVariable String name) {
+        userDAO.deleteAllByName(name);
     }
 
 
