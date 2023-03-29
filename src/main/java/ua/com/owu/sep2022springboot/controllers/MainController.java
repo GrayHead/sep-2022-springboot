@@ -42,6 +42,14 @@ public class MainController {
                 .and(UserSpecifications.byAge(10))
                 .and(UserSpecifications.byName("kokos"))
         );
+
+//        Specification specification = (root, query, criteriaBuilder) -> null;
+//        for (Object genre : allGenres) {
+//            specification.and(UserSpecifications.byGendre(gendre))
+//
+//        }
+//
+
         return new ResponseEntity<>(all, HttpStatus.OK);
     }
 
