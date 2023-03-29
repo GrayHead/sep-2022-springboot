@@ -2,6 +2,7 @@ package ua.com.owu.sep2022springboot.dao;
 
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,10 +11,13 @@ import ua.com.owu.sep2022springboot.models.User;
 import java.util.List;
 
 @Transactional
-public interface UserDAO extends JpaRepository<User, Integer> {
+public interface UserDAO extends JpaRepository<User, Integer>, JpaSpecificationExecutor<User> {
 
     @Query("select u from User u where u.name =:name ")
     List<User> getUsersByNameLength(@Param("name") String name);
+    // name
+    //age
+    //id
 
 
     List<User> findByName(String name);
