@@ -1,7 +1,12 @@
 package ua.com.owu.sep2022springboot.controllers;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.com.owu.sep2022springboot.dao.CarDAO;
 import ua.com.owu.sep2022springboot.models.Car;
@@ -13,25 +18,28 @@ import java.util.List;
 @RequestMapping(value = "/cars")
 public class MainController {
 
+
     private CarDAO carDAO;
 
+
     @GetMapping("")
-    public List<Car> getCars() {
-        Sort by = Sort.by(Sort.Order.desc("id"));
-        return carDAO.findAll(by);
+    public ResponseEntity<List<Car>> getCars() {
+        return new ResponseEntity<>(carDAO.findAll(Sort.by(Sort.Order.desc("id"))), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public Car getCar(@PathVariable int id) {
-        return carDAO.findById(id).get();
+    public ResponseEntity<Car> getCar(@PathVariable int id) {
+        return new ResponseEntity<>(carDAO.findById(id).get(), HttpStatusCode.valueOf(200));
     }
 
     @PostMapping("")
-    public void saveCar(@RequestBody Car car) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public void saveCar(@RequestBody @Valid Car car) {
         carDAO.save(car);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public void deleteCar(@PathVariable int id) {
         carDAO.deleteById(id);
     }
@@ -39,15 +47,15 @@ public class MainController {
 //    get cars/power/{value} (знайти всі по потужності)
 
     @GetMapping("/power/{value}")
-    public List<Car> getCarsByPower(@PathVariable int value) {
+    public ResponseEntity<List<Car>> getCarsByPower(@PathVariable int value) {
 //        return carDAO.findAllByPower(value);
-        return carDAO.customQueryByPower(value);
+        return new ResponseEntity<>(carDAO.customQueryByPower(value), HttpStatus.OK);
     }
 
     //    get cars/producer/{value} (знайти всі по виробнику)
     @GetMapping("/producer/{value}")
-    public List<Car> getCarsByProducer(@PathVariable String value) {
-        return carDAO.findAllByProducer(value);
+    public ResponseEntity<List<Car>> getCarsByProducer(@PathVariable String value) {
+        return new ResponseEntity<>(carDAO.findAllByProducer(value), HttpStatusCode.valueOf(200));
     }
 
 }
