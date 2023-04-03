@@ -29,8 +29,6 @@ public class User {
     @NotBlank(message = "name cannot be empty")
     @Size(min = 2, message = "name too short")
     @Size(max = 6, message = "name too long")
-
-
     @JsonView(value = {Views.Level1.class, Views.Level2.class})
     private String name;
 
@@ -39,6 +37,8 @@ public class User {
 
     @JsonView(value = {Views.Level1.class, Views.Level2.class})
     private int age;
+
+    private String avatar;
 
     public User(String name) {
         this.name = name;

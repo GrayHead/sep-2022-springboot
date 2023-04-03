@@ -1,22 +1,23 @@
 package ua.com.owu.sep2022springboot.controllers;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ua.com.owu.sep2022springboot.dao.UserDAO;
+import ua.com.owu.sep2022springboot.dao.mongo.ClientMongoDAO;
 import ua.com.owu.sep2022springboot.models.User;
 import ua.com.owu.sep2022springboot.models.UserDTO;
+import ua.com.owu.sep2022springboot.models.mongomodels.Client;
 import ua.com.owu.sep2022springboot.queryFilters.UserSpecifications;
+import ua.com.owu.sep2022springboot.services.UserService;
 import ua.com.owu.sep2022springboot.views.Views;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -25,40 +26,31 @@ import java.util.List;
 @RequestMapping(value = "/users")
 public class MainController {
 
+    // TODO: 03.04.2023 Delete userdao after replace by userservice
     private UserDAO userDAO;
 
+    private UserService userService;
+    private ClientMongoDAO clientMongoDAO;
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.OK)
     public void save(@RequestBody @Valid User user) {
-        userDAO.save(user);
-
+        userService.save(user);
+        clientMongoDAO.save(new Client(user.getName(), user.getAge()));
     }
 
     @GetMapping("")
     @JsonView(value = Views.Level1.class)
     public ResponseEntity<List<User>> getUsers() {
-        List<User> all = userDAO.findAll(UserSpecifications.byId(4)
+        return userService.findAllWithSpecifications(UserSpecifications.byId(4)
                 .and(UserSpecifications.byAge(10))
-                .and(UserSpecifications.byName("kokos"))
-        );
-
-//        Specification specification = (root, query, criteriaBuilder) -> null;
-//        for (Object genre : allGenres) {
-//            specification.and(UserSpecifications.byGendre(gendre))
-//
-//        }
-//
-
-        return new ResponseEntity<>(all, HttpStatus.OK);
+                .and(UserSpecifications.byName("kokos")));
     }
 
 
     @GetMapping("/{id}")
-    public UserDTO getUsers(@PathVariable int id) {
-        User user = userDAO.findById(id).get();
-        UserDTO userDTO = new UserDTO(user);
-        return userDTO;
+    public UserDTO getUser(@PathVariable int id) {
+        return userService.getUser(id);
     }
 
     @DeleteMapping("/{id}")
@@ -92,5 +84,21 @@ public class MainController {
         userDAO.deleteAllByName(name);
     }
 
+
+    @PostMapping("/saveWithAvatar")
+    public void saveWithAvatar(
+            @RequestParam String name,
+            @RequestParam int age,
+            @RequestParam MultipartFile avatar
+    ) throws IOException {
+
+        User user = new User(name, age);
+        String originalFilename = avatar.getOriginalFilename();
+        user.setAvatar("/photo/" + originalFilename);
+        String path = System.getProperty("user.home") + File.separator + "images" + File.separator + originalFilename;
+        File file = new File(path);
+        avatar.transferTo(file);
+        userService.save(user);
+    }
 
 }
