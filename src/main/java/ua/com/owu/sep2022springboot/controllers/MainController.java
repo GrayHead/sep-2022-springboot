@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ua.com.owu.sep2022springboot.dao.ClientUserDAO;
 import ua.com.owu.sep2022springboot.models.ClientUser;
 import ua.com.owu.sep2022springboot.models.dto.ClientUserDTO;
+import ua.com.owu.sep2022springboot.services.ClientUserService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -28,7 +29,7 @@ public class MainController {
 
     private ClientUserDAO clientUserDAO;
     private PasswordEncoder passwordEncoder;
-    private AuthenticationManager authenticationManager;
+    private ClientUserService clientUserService;
 
     @PostMapping("/clients/save")
     public void saveClient(@RequestBody ClientUserDTO clientUserDTO) {
@@ -47,30 +48,7 @@ public class MainController {
 
     @PostMapping("/clients/login")
     public ResponseEntity<String> login(@RequestBody ClientUserDTO clientUserDTO) {
-
-        System.out.println(clientUserDTO);
-
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(
-                        clientUserDTO.getUsername(), clientUserDTO.getPassword()
-                );
-        System.out.println(usernamePasswordAuthenticationToken);
-        Authentication authenticate = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-        System.out.println(authenticate + "!!!!!");
-        if (authenticate != null) {
-            String jwtToken = Jwts.builder()
-                    .setSubject(authenticate.getName()) // kokos - username
-                    .signWith(SignatureAlgorithm.HS512, "okten".getBytes(StandardCharsets.UTF_8))
-                    .compact();
-            System.out.println(jwtToken);
-
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add("Authorization", "Bearer " + jwtToken);
-            return new ResponseEntity<>("login:)", httpHeaders, HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>("bad credentials", HttpStatus.FORBIDDEN);
-
+        return clientUserService.login(clientUserDTO);
 
     }
 
